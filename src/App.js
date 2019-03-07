@@ -1,95 +1,82 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
 
 
+function AddToDoForm ({addTodo}) {
+  const [text, setText] = useState("");
 
-class AddToDoForm extends Component {  
-  constructor() {
-    super();
-    this.state = { 
-      inputVal:"" 
-    };
-  }
-  submitToDo = (ev)=>{
+  const submitToDo = (ev)=>{
     ev.preventDefault();
 
-    if(this.state.inputVal){
-      this.props.addTodo(this.state.inputVal);
-      this.setState({inputVal:""});
+    if(text){
+      addTodo(text);
+      setText("")
     }else{
       alert("A value is required!");
     }
+
   }
 
-  render(){
-    return(
-      <form onSubmit={this.submitToDo}>
-        <label>Add a todo</label>
-        <div>
-          <input
-            className="todo-input"
-            placeholder="Start typing..."
-            onChange={(ev)=>{
-              this.setState({inputVal:ev.target.value});
-            }}
-            value={this.state.inputVal}
-          />
-          <button>Submit</button>
-        </div>
-      </form>
-    )
-  }
+  return(
+    <form onSubmit={submitToDo}>
+      <label>Add a todo</label>
+      <div>
+        <input
+          className="todo-input"
+          placeholder="Start typing..."
+          onChange={(ev)=>{
+            setText(ev.target.value)
+          }}
+          value={text}
+        />
+        <button>Submit</button>
+      </div>
+    </form>
+  )
 }
-
-class App extends Component {
-  constructor() {
-    super();
-    this.state = { 
-      todos: [{
-        text:"Buy groceries",
-        isDone:false
-      },    {
-        text:"Go to the gym",
-        isDone:false
-      },    {
-        text:"Pay credit card",
-        isDone:false
-      }] 
-    };
+function App () {
+  const [todos, setTodos] = useState([
+    {
+      text:"Buy groceries",
+      isDone:false
+    },    {
+      text:"Go to the gym",
+      isDone:false
+    },    {
+      text:"Pay credit card",
+      isDone:false
+    }
+  ]);
+  
+  const addTodo = (text)=>{
+    setTodos([...todos, {text}]);
   }
 
-  addTodo = (text)=>{
-    console.log("hhhhh", text)
-    this.setState({todos:[...this.state.todos, {text}]});
-  }
-
-  toggleTodoStatus = (payload)=>{
+  const toggleTodoStatus = (payload)=>{
     const { status, index } = payload;
     console.log(payload)
-    const myNewTodos = [...this.state.todos];
+    const myNewTodos = [...todos];
     myNewTodos[index].isDone = status;
-    this.setState({todos:myNewTodos});
+    setTodos(myNewTodos)
   }
-  render() {
-    return (
-      <div className="app">
-        <AddToDoForm addTodo={this.addTodo}/>
-        {
-          this.state.todos.map((todo, index)=>{
-            const { text, isDone} = todo;
-            const btnText = isDone ? "Undo" : "Done";
-            return(
-              <div key={index} className="list-item">
-                <span className={isDone ? "strike-through" : ""}>{text}</span>
-                <button className={`status-btn ${isDone ? "done" : ""}`} onClick={()=>this.toggleTodoStatus({status:!isDone, index})}>{btnText}</button>
-              </div>
-          );
-          })
-        }
-      </div>
-    );
-  }
+  return (
+    <div className="app">
+      <h1>Todo List</h1>
+      <AddToDoForm addTodo={addTodo}/>
+      {
+        todos.map((todo, index)=>{
+          const { text, isDone} = todo;
+          const btnText = isDone ? "Undo" : "Done";
+          return(
+            <div key={index} className="list-item">
+              <span className={isDone ? "strike-through" : ""}>{text}</span>
+              <button className={`status-btn ${isDone ? "done" : ""}`} onClick={()=>toggleTodoStatus({status:!isDone, index})}>{btnText}</button>
+            </div>
+         );
+        })
+      }
+    </div>
+  );
 }
 
 export default App;
